@@ -1,8 +1,6 @@
 -- 广告 ROI 数据分析系统 - 数据库初始化脚本
-
-CREATE DATABASE IF NOT EXISTS roi_dashboard;
-
-\c roi_dashboard;
+-- 执行前请先创建数据库: psql -U postgres -c "CREATE DATABASE roi_dashboard;"
+-- 执行方式: psql -U postgres -d roi_dashboard -f backend/sql/init.sql
 
 -- 主数据表
 CREATE TABLE IF NOT EXISTS ad_roi_records (
@@ -45,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_roi_app ON ad_roi_records(app);
 CREATE INDEX IF NOT EXISTS idx_roi_country ON ad_roi_records(country);
 CREATE INDEX IF NOT EXISTS idx_roi_app_country_date ON ad_roi_records(app, country, date);
 
--- 自动更新 updated_at
+-- 自动更新 updated_at 触发器
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -54,6 +52,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_ad_roi_records_updated_at ON ad_roi_records;
 CREATE TRIGGER update_ad_roi_records_updated_at
   BEFORE UPDATE ON ad_roi_records
   FOR EACH ROW
